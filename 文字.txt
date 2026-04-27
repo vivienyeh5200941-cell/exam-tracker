@@ -1,0 +1,1313 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>不動產雙證照讀書進度</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+–bg: #0f0e0c;
+–surface: #1a1814;
+–surface2: #221f1a;
+–border: #2e2a24;
+–border2: #3d3830;
+–text: #e8e0d0;
+–muted: #7a7060;
+–muted2: #5a5248;
+–accent: #d4703a;
+–accent2: #e8964a;
+–gold: #c8a030;
+–green: #5a9060;
+–green2: #4a7850;
+–blue: #4a7898;
+–broker: #d4703a;
+–land: #c8a030;
+–both: #5a9060;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Noto Serif TC’, serif;
+min-height: 100vh;
+padding-bottom: 40px;
+}
+
+/* Header */
+.app-header {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 16px;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+
+.app-title {
+font-size: 1rem;
+font-weight: 700;
+letter-spacing: 0.08em;
+color: var(–text);
+}
+
+.app-subtitle {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+color: var(–muted);
+margin-top: 2px;
+}
+
+/* Countdown */
+.countdown-strip {
+display: flex;
+gap: 1px;
+background: var(–border);
+border-bottom: 1px solid var(–border);
+}
+
+.countdown-card {
+flex: 1;
+background: var(–surface);
+padding: 14px 12px;
+text-align: center;
+}
+
+.countdown-card .exam-name {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 0.1em;
+margin-bottom: 4px;
+}
+
+.countdown-card .days-num {
+font-family: ‘Space Mono’, monospace;
+font-size: 2.2rem;
+font-weight: 700;
+line-height: 1;
+color: var(–accent);
+}
+
+.countdown-card.land-card .days-num { color: var(–gold); }
+
+.countdown-card .days-label {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted);
+margin-top: 2px;
+}
+
+.countdown-card .exam-date {
+font-size: 0.65rem;
+color: var(–muted2);
+margin-top: 3px;
+}
+
+/* Overall progress */
+.overall-progress {
+padding: 14px 16px;
+background: var(–surface2);
+border-bottom: 1px solid var(–border);
+}
+
+.progress-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+}
+
+.progress-title {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.65rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+}
+
+.progress-count {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.65rem;
+color: var(–accent);
+}
+
+.progress-track {
+height: 4px;
+background: var(–border2);
+border-radius: 2px;
+overflow: hidden;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–accent), var(–gold));
+border-radius: 2px;
+transition: width 0.5s ease;
+}
+
+/* Tab bar */
+.tab-bar {
+display: flex;
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+overflow-x: auto;
+scrollbar-width: none;
+position: sticky;
+top: 61px;
+z-index: 90;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+flex-shrink: 0;
+padding: 10px 14px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.6rem;
+color: var(–muted);
+background: none;
+border: none;
+border-bottom: 2px solid transparent;
+cursor: pointer;
+text-transform: uppercase;
+letter-spacing: 0.06em;
+white-space: nowrap;
+transition: all 0.2s;
+-webkit-tap-highlight-color: transparent;
+}
+
+.tab-btn.active {
+color: var(–text);
+border-bottom-color: var(–accent);
+}
+
+.tab-btn.broker-tab.active { border-bottom-color: var(–broker); color: var(–broker); }
+.tab-btn.land-tab.active { border-bottom-color: var(–gold); color: var(–gold); }
+.tab-btn.both-tab.active { border-bottom-color: var(–green); color: var(–green); }
+
+/* Content */
+.tab-content { display: none; padding: 16px; }
+.tab-content.active { display: block; }
+
+/* Subject card */
+.subject-card {
+background: var(–surface);
+border: 1px solid var(–border);
+margin-bottom: 16px;
+overflow: hidden;
+}
+
+.subject-header {
+padding: 12px 14px;
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+cursor: pointer;
+-webkit-tap-highlight-color: transparent;
+}
+
+.subject-header-left { flex: 1; }
+
+.subject-name {
+font-size: 0.9rem;
+font-weight: 700;
+letter-spacing: 0.04em;
+}
+
+.subject-meta {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-top: 4px;
+}
+
+.subject-tag {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.5rem;
+padding: 2px 5px;
+border: 1px solid;
+text-transform: uppercase;
+letter-spacing: 0.08em;
+}
+
+.tag-broker { border-color: var(–broker); color: var(–broker); }
+.tag-land { border-color: var(–gold); color: var(–gold); }
+.tag-both { border-color: var(–green); color: var(–green); }
+
+.subject-progress-text {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted);
+}
+
+.subject-chevron {
+font-size: 0.8rem;
+color: var(–muted);
+transition: transform 0.2s;
+margin-left: 8px;
+}
+
+.subject-card.collapsed .subject-chevron { transform: rotate(-90deg); }
+
+.subject-progress-bar {
+height: 3px;
+background: var(–border2);
+overflow: hidden;
+}
+
+.subject-progress-fill {
+height: 100%;
+background: var(–green);
+transition: width 0.4s ease;
+}
+
+.subject-body { }
+.subject-card.collapsed .subject-body { display: none; }
+
+/* Phase */
+.phase-group {
+border-top: 1px solid var(–border);
+}
+
+.phase-label {
+padding: 8px 14px 6px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted2);
+text-transform: uppercase;
+letter-spacing: 0.1em;
+background: var(–surface2);
+border-bottom: 1px solid var(–border);
+}
+
+/* Topic item */
+.topic-item {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+padding: 11px 14px;
+border-bottom: 1px solid var(–border);
+cursor: pointer;
+transition: background 0.15s;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+}
+
+.topic-item:last-child { border-bottom: none; }
+.topic-item:active { background: var(–surface2); }
+
+.topic-dot {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+border: 1.5px solid var(–muted2);
+background: transparent;
+flex-shrink: 0;
+margin-top: 4px;
+transition: all 0.2s;
+}
+
+.topic-item.current .topic-dot {
+background: var(–accent);
+border-color: var(–accent);
+box-shadow: 0 0 6px var(–accent);
+}
+
+.topic-item.done .topic-dot {
+background: var(–green);
+border-color: var(–green);
+}
+
+.topic-body { flex: 1; min-width: 0; }
+
+.topic-name {
+font-size: 0.82rem;
+font-weight: 600;
+line-height: 1.4;
+transition: color 0.2s;
+}
+
+.topic-item.current .topic-name { color: var(–accent2); }
+.topic-item.done .topic-name {
+color: var(–muted);
+text-decoration: line-through;
+text-decoration-color: var(–green2);
+}
+
+.topic-detail {
+font-size: 0.68rem;
+color: var(–muted);
+margin-top: 2px;
+line-height: 1.5;
+}
+
+.topic-item.done .topic-detail { color: var(–muted2); }
+
+.topic-right { text-align: right; flex-shrink: 0; }
+
+.topic-period {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted2);
+white-space: nowrap;
+}
+
+.topic-item.current .topic-period { color: var(–accent); }
+.topic-item.done .topic-period { color: var(–green2); }
+
+.topic-stars {
+font-size: 0.6rem;
+margin-top: 2px;
+text-align: right;
+}
+
+/* Legend */
+.legend-bar {
+display: flex;
+gap: 16px;
+padding: 10px 16px;
+background: var(–surface2);
+border-bottom: 1px solid var(–border);
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 5px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted);
+}
+
+.legend-dot {
+width: 8px; height: 8px;
+border-radius: 50%;
+}
+
+/* Bottom hint */
+.hint {
+text-align: center;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.55rem;
+color: var(–muted2);
+padding: 20px 16px 8px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">不動產雙證照｜讀書進度</div>
+  <div class="app-subtitle">點擊項目切換狀態｜點科目名稱收合</div>
+</div>
+
+<div class="countdown-strip">
+  <div class="countdown-card">
+    <div class="exam-name">經紀人考試</div>
+    <div class="days-num" id="days1">—</div>
+    <div class="days-label">DAYS LEFT</div>
+    <div class="exam-date">2026年11月14日</div>
+  </div>
+  <div class="countdown-card land-card">
+    <div class="exam-name">地政士考試</div>
+    <div class="days-num" id="days2">—</div>
+    <div class="days-label">DAYS LEFT</div>
+    <div class="exam-date">2027年6月（預估）</div>
+  </div>
+</div>
+
+<div class="overall-progress">
+  <div class="progress-row">
+    <span class="progress-title">整體進度</span>
+    <span class="progress-count" id="overall-count">0 / 0</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="overall-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="legend-bar">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>完成</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>進行中</div>
+  <div class="legend-item"><div class="legend-dot" style="border:1.5px solid var(--muted2);background:transparent"></div>待讀</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn both-tab active" onclick="showTab('all')">全部</button>
+  <button class="tab-btn broker-tab" onclick="showTab('broker')">經紀人</button>
+  <button class="tab-btn land-tab" onclick="showTab('land')">地政士</button>
+</div>
+
+<!-- ALL TAB -->
+
+<div class="tab-content active" id="tab-all">
+
+  <!-- 民法概要 -->
+
+  <div class="subject-card" id="subj-civil">
+    <div class="subject-header" onclick="toggleSubject('subj-civil')">
+      <div class="subject-header-left">
+        <div class="subject-name">民法概要</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-both">兩試共用</span>
+          <span class="subject-progress-text" id="prog-civil">0 / 14</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-civil" style="width:0%"></div></div>
+    <div class="subject-body">
+
+```
+  <div class="phase-group">
+    <div class="phase-label">民總｜已讀基礎</div>
+    <div class="topic-item done" onclick="toggle(this)" data-id="c1">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">意思表示、行為能力</div>
+        <div class="topic-detail">法律行為成立要件、意思表示瑕疵（錯誤、詐欺、脅迫）</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">已讀</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item done" onclick="toggle(this)" data-id="c2">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">消滅時效、除斥期間</div>
+        <div class="topic-detail">民125～147｜時效中斷、不完成</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">已讀</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item done" onclick="toggle(this)" data-id="c3">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">代理、無權處分</div>
+        <div class="topic-detail">民103～118｜表見代理、無權代理效力</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">已讀</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">債總｜初步讀</div>
+    <div class="topic-item done" onclick="toggle(this)" data-id="c4">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">無因管理、不當得利、侵權行為</div>
+        <div class="topic-detail">民172、179、184、194｜債之發生原因</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">初步讀</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item done" onclick="toggle(this)" data-id="c5">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">同時履行抗辯、債之效力</div>
+        <div class="topic-detail">民264｜雙務契約核心抗辯權</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">初步讀</div>
+        <div class="topic-stars">⭐</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">債各｜4/27 ～ 6/1</div>
+    <div class="topic-item current" onclick="toggle(this)" data-id="c6">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">買賣契約</div>
+        <div class="topic-detail">民345～397｜物之瑕疵擔保、危險負擔、出賣人義務</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">4/27～5/10</div>
+        <div class="topic-stars">⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c7">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">租賃契約</div>
+        <div class="topic-detail">民421～463｜修繕義務、優先承買、押租金</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">5/11～5/17</div>
+        <div class="topic-stars">⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c8">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">委任契約</div>
+        <div class="topic-detail">民528～552｜受任人義務、報告義務、複委任</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">5/18～5/21</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c9">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">居間契約</div>
+        <div class="topic-detail">民565～575｜居間報酬請求要件、雙方居間</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">5/22～5/24</div>
+        <div class="topic-stars">⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c10">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">贈與、借貸、承攬、合夥</div>
+        <div class="topic-detail">快速掃重點條文即可</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">5/25～6/1</div>
+        <div class="topic-stars">⭐</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">物權編｜6/2 ～ 7/20</div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c11">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">不動產所有權、登記</div>
+        <div class="topic-detail">民758～759｜登記生效主義、不動產物權變動</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">6/2～6/8</div>
+        <div class="topic-stars">⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c12">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">共有</div>
+        <div class="topic-detail">民817～831｜應有部分、共有物分割、優先購買權</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">6/9～6/15</div>
+        <div class="topic-stars">⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c13">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">地上權、不動產役權、農育權</div>
+        <div class="topic-detail">民832～850｜設定、存續期間、消滅</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">6/16～6/22</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c14">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">抵押權</div>
+        <div class="topic-detail">民860～883｜普通/最高限額抵押、次序、實行</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">6/23～7/6</div>
+        <div class="topic-stars">⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c15">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">典權、占有</div>
+        <div class="topic-detail">民911～966｜典權期間、找貼；占有保護</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">7/7～7/13</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c16">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">物權整體複習</div>
+        <div class="topic-detail">整理比較表、重做筆記、刷考古題</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">7/14～7/20</div>
+        <div class="topic-stars"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">親屬、繼承｜7/21 ～ 7/31</div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c17">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">夫妻財產制</div>
+        <div class="topic-detail">法定財產制、剩餘財產分配請求權</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">7/21～7/25</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c18">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">繼承順序、特留分、遺囑</div>
+        <div class="topic-detail">民1138～1198｜繼承人順序、拋棄繼承、代位繼承</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">7/26～7/31</div>
+        <div class="topic-stars">⭐⭐</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">二輪複習＋刷題｜8月</div>
+    <div class="topic-item" onclick="toggle(this)" data-id="c19">
+      <div class="topic-dot"></div>
+      <div class="topic-body">
+        <div class="topic-name">民法全科二輪複習</div>
+        <div class="topic-detail">重點整理、錯題回顧、申論架構練習</div>
+      </div>
+      <div class="topic-right">
+        <div class="topic-period">8/1～8/31</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- 信託法 -->
+
+  <div class="subject-card" id="subj-trust">
+    <div class="subject-header" onclick="toggleSubject('subj-trust')">
+      <div class="subject-header-left">
+        <div class="subject-name">信託法概要</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-land">地政士專有</span>
+          <span class="subject-progress-text" id="prog-trust">0 / 4</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-trust" style="width:0%"></div></div>
+    <div class="subject-body">
+      <div class="phase-group">
+        <div class="phase-label">信託法基礎｜2026年11月後</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="tr1">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">信託成立與種類</div>
+            <div class="topic-detail">信託定義、自益信託vs他益信託、書面要求</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2026/11月後</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="tr2">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">受託人義務與責任</div>
+            <div class="topic-detail">善管義務、分別管理、利益衝突迴避</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2026/11月後</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="tr3">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">不動產信託</div>
+            <div class="topic-detail">信託登記、受益權、土地信託實務</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2026/12月</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="tr4">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">信託終止與清算</div>
+            <div class="topic-detail">信託消滅事由、歸屬權利人</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2026/12月</div>
+            <div class="topic-stars">⭐</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 不動產估價 -->
+
+  <div class="subject-card" id="subj-appraisal">
+    <div class="subject-header" onclick="toggleSubject('subj-appraisal')">
+      <div class="subject-header-left">
+        <div class="subject-name">不動產估價概要</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-broker">經紀人科目</span>
+          <span class="subject-progress-text" id="prog-appraisal">0 / 6</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-appraisal" style="width:0%"></div></div>
+    <div class="subject-body">
+      <div class="phase-group">
+        <div class="phase-label">估價基礎｜9月</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ap1">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">估價原則與價格形成</div>
+            <div class="topic-detail">供需原則、代替原則、預期原則、最有效使用</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">9/1～9/7</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ap2">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">比較法（市場比較法）</div>
+            <div class="topic-detail">比較標準、調整方法、成交價格選取</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">9/8～9/14</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ap3">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">收益法（直接資本化）</div>
+            <div class="topic-detail">淨收益、資本化率、DCF折現法計算</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">9/15～9/21</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ap4">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">成本法（土地＋建物分別估算）</div>
+            <div class="topic-detail">重建成本、折舊計算、土地殘餘法</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">9/22～9/28</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ap5">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">影響不動產價格因素</div>
+            <div class="topic-detail">一般因素、地區因素、個別因素分類</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">9/29～10/5</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ap6">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">估價複習＋計算題練習</div>
+            <div class="topic-detail">三大方法綜合練習、歷屆計算題</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/6～10/12</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 土地法 -->
+
+  <div class="subject-card" id="subj-landlaw">
+    <div class="subject-header" onclick="toggleSubject('subj-landlaw')">
+      <div class="subject-header-left">
+        <div class="subject-name">土地法與土地相關稅法</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-both">兩試共用</span>
+          <span class="subject-progress-text" id="prog-landlaw">0 / 8</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-landlaw" style="width:0%"></div></div>
+    <div class="subject-body">
+      <div class="phase-group">
+        <div class="phase-label">土地法主體｜10月（經紀人版）</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll1">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">土地法總則、地權</div>
+            <div class="topic-detail">土地所有權限制、外國人取得、私有土地範圍</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/1～10/7</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll2">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">地價、土地徵收</div>
+            <div class="topic-detail">公告地價、公告現值、區段徵收、一般徵收</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/8～10/14</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll3">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">土地使用管制</div>
+            <div class="topic-detail">都市計畫分區、非都市土地使用管制</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/15～10/18</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll4">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">平均地權條例</div>
+            <div class="topic-detail">規定地價、漲價歸公、照價收買、實價登錄</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/19～10/23</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-group">
+        <div class="phase-label">土地稅法｜10月下旬（經紀人版）</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll5">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">地價稅</div>
+            <div class="topic-detail">課稅基礎、自用住宅用地優惠、稅率計算</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/24～10/27</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll6">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">土地增值稅</div>
+            <div class="topic-detail">計算公式、一生一次優惠、重購退稅</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/28～10/31</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll7">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">房屋稅、契稅、印花稅</div>
+            <div class="topic-detail">房屋稅率、契稅稅率與課稅時機</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/1～11/3</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ll8">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">土地法規深讀（地政士版）</div>
+            <div class="topic-detail">考後補強，2027年2月深讀地政士版本</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/2月</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 經紀法規 -->
+
+  <div class="subject-card" id="subj-broker">
+    <div class="subject-header" onclick="toggleSubject('subj-broker')">
+      <div class="subject-header-left">
+        <div class="subject-name">不動產經紀相關法規概要</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-broker">經紀人科目</span>
+          <span class="subject-progress-text" id="prog-broker">0 / 5</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-broker" style="width:0%"></div></div>
+    <div class="subject-body">
+      <div class="phase-group">
+        <div class="phase-label">經紀法規｜10月底 ～ 11月初</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="br1">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">不動產經紀業管理條例</div>
+            <div class="topic-detail">經紀業設立、經紀人員資格、專任委託、斡旋金</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">10/27～11/2</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="br2">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">公平交易法（不動產相關）</div>
+            <div class="topic-detail">不實廣告、限制競爭、聯合行為</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/3～11/5</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="br3">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">消費者保護法（不動產相關）</div>
+            <div class="topic-detail">定型化契約、7天審閱期、瑕疵擔保</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/5～11/7</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="br4">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">公寓大廈管理條例</div>
+            <div class="topic-detail">區分所有權人會議、管委會、共用部分</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/7～11/9</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="br5">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">經紀法規全科衝刺複習</div>
+            <div class="topic-detail">考古題演練、重點背誦</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/10～11/13</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 土地登記實務 -->
+
+  <div class="subject-card" id="subj-reg">
+    <div class="subject-header" onclick="toggleSubject('subj-reg')">
+      <div class="subject-header-left">
+        <div class="subject-name">土地登記實務</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-land">地政士專有</span>
+          <span class="subject-progress-text" id="prog-reg">0 / 6</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-reg" style="width:0%"></div></div>
+    <div class="subject-body">
+      <div class="phase-group">
+        <div class="phase-label">土地登記｜2027年1月</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="re1">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">登記總論、登記效力</div>
+            <div class="topic-detail">登記公示效力、公信力、登記錯誤更正</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/1/6～1/12</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="re2">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">登記種類</div>
+            <div class="topic-detail">所有權登記、他項權利登記、限制登記</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/1/13～1/19</div>
+            <div class="topic-stars">⭐⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="re3">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">申請人與申辦程序</div>
+            <div class="topic-detail">義務人、權利人、地政士代理申請規定</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/1/20～1/26</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="re4">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">書狀與謄本</div>
+            <div class="topic-detail">權狀補發、謄本申請、電子謄本</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/1/27～1/31</div>
+            <div class="topic-stars">⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="re5">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">土地複丈、建物測量</div>
+            <div class="topic-detail">分割、合併、地目變更、建物第一次登記</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/2/3～2/9</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="re6">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">登記實務複習＋申論練習</div>
+            <div class="topic-detail">歷屆題型演練、流程圖整理</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">2027/2/10～2/16</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 國文 -->
+
+  <div class="subject-card" id="subj-chinese">
+    <div class="subject-header" onclick="toggleSubject('subj-chinese')">
+      <div class="subject-header-left">
+        <div class="subject-name">國文</div>
+        <div class="subject-meta">
+          <span class="subject-tag tag-broker">經紀人科目</span>
+          <span class="subject-progress-text" id="prog-chinese">0 / 2</span>
+        </div>
+      </div>
+      <div class="subject-chevron">▾</div>
+    </div>
+    <div class="subject-progress-bar"><div class="subject-progress-fill" id="bar-chinese" style="width:0%"></div></div>
+    <div class="subject-body">
+      <div class="phase-group">
+        <div class="phase-label">國文｜考前2週即可</div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ch1">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">公文格式</div>
+            <div class="topic-detail">函、公告、開會通知單格式與用語</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/1～11/5</div>
+            <div class="topic-stars">⭐⭐</div>
+          </div>
+        </div>
+        <div class="topic-item" onclick="toggle(this)" data-id="ch2">
+          <div class="topic-dot"></div>
+          <div class="topic-body">
+            <div class="topic-name">閱讀測驗、字義辨析</div>
+            <div class="topic-detail">歷屆試題練習即可，不需特別準備</div>
+          </div>
+          <div class="topic-right">
+            <div class="topic-period">11/5～11/8</div>
+            <div class="topic-stars">⭐</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">⭐⭐⭐ 必考核心　⭐⭐ 重要　⭐ 了解即可</div>
+</div>
+
+<!-- BROKER TAB -->
+
+<div class="tab-content" id="tab-broker">
+  <div style="padding:8px 0 16px; font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted);">
+    顯示經紀人考試科目（民法、估價、土地法稅、經紀法規、國文）
+  </div>
+  <div id="broker-subjects"></div>
+</div>
+
+<!-- LAND TAB -->
+
+<div class="tab-content" id="tab-land">
+  <div style="padding:8px 0 16px; font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted);">
+    顯示地政士考試科目（民法＋信託法、土地法規、土地登記實務、土地稅法規）
+  </div>
+  <div id="land-subjects"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'exam_v3';
+
+// Subject definitions: id, total topics, which exam
+const subjects = [
+  { id: 'civil',     total: 19, exams: ['broker','land'] },
+  { id: 'trust',     total: 4,  exams: ['land'] },
+  { id: 'appraisal', total: 6,  exams: ['broker'] },
+  { id: 'landlaw',   total: 8,  exams: ['broker','land'] },
+  { id: 'broker',    total: 5,  exams: ['broker'] },
+  { id: 'reg',       total: 6,  exams: ['land'] },
+  { id: 'chinese',   total: 2,  exams: ['broker'] },
+];
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+
+function saveState(s) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch(e) {}
+}
+
+const STATES = ['', 'current', 'done'];
+
+function toggle(el) {
+  if (!el.dataset.id) return;
+  const s = loadState();
+  const id = el.dataset.id;
+  let idx = 0;
+  if (el.classList.contains('done')) idx = 2;
+  else if (el.classList.contains('current')) idx = 1;
+  const next = (idx + 1) % 3;
+  el.classList.remove('done', 'current');
+  if (STATES[next]) el.classList.add(STATES[next]);
+  s[id] = next;
+  saveState(s);
+  updateAllProgress();
+}
+
+function toggleSubject(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('collapsed');
+}
+
+function applyState() {
+  const s = loadState();
+  document.querySelectorAll('.topic-item[data-id]').forEach(el => {
+    const id = el.dataset.id;
+    if (s[id] !== undefined) {
+      el.classList.remove('done', 'current');
+      if (STATES[s[id]]) el.classList.add(STATES[s[id]]);
+    }
+  });
+}
+
+function updateAllProgress() {
+  let totalDone = 0, totalAll = 0;
+  subjects.forEach(subj => {
+    const items = document.querySelectorAll(`#subj-${subj.id} .topic-item[data-id]`);
+    const done = document.querySelectorAll(`#subj-${subj.id} .topic-item.done`);
+    const pct = items.length ? Math.round(done.length / items.length * 100) : 0;
+    const bar = document.getElementById(`bar-${subj.id}`);
+    const prog = document.getElementById(`prog-${subj.id}`);
+    if (bar) bar.style.width = pct + '%';
+    if (prog) prog.textContent = done.length + ' / ' + items.length;
+    totalDone += done.length;
+    totalAll += items.length;
+  });
+  const overall = totalAll ? Math.round(totalDone / totalAll * 100) : 0;
+  document.getElementById('overall-fill').style.width = overall + '%';
+  document.getElementById('overall-count').textContent = totalDone + ' / ' + totalAll + '  (' + overall + '%)';
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+
+  if (name === 'broker') {
+    const container = document.getElementById('broker-subjects');
+    container.innerHTML = '';
+    ['civil','appraisal','landlaw','broker','chinese'].forEach(id => {
+      const clone = document.getElementById('subj-' + id).cloneNode(true);
+      clone.id = 'broker-' + id;
+      clone.querySelectorAll('.topic-item[data-id]').forEach(item => {
+        item.onclick = function() { toggle(document.querySelector(`#subj-${id} [data-id="${item.dataset.id}"]`) || item); };
+      });
+      container.appendChild(clone);
+    });
+  }
+
+  if (name === 'land') {
+    const container = document.getElementById('land-subjects');
+    container.innerHTML = '';
+    ['civil','trust','landlaw','reg'].forEach(id => {
+      const clone = document.getElementById('subj-' + id).cloneNode(true);
+      clone.id = 'land-' + id;
+      container.appendChild(clone);
+    });
+  }
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const d1 = new Date('2026-11-14');
+  const d2 = new Date('2027-06-05');
+  document.getElementById('days1').textContent = Math.max(0, Math.ceil((d1 - now) / 86400000));
+  document.getElementById('days2').textContent = Math.max(0, Math.ceil((d2 - now) / 86400000));
+}
+
+applyState();
+updateAllProgress();
+updateCountdown();
+</script>
+
+</body>
+</html>

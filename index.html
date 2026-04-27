@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>不動產雙證照讀書進度表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
+  :root { --ink:#1a1209; --paper:#f5f0e8; --accent:#c84b2f; --gold:#b8860b; --muted:#7a6e5f; --line:#d4cdc0; --done:#4a7c59; --todo:#9e9485; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink); font-family:'Noto Serif TC', serif; min-height:100vh; padding:24px 16px 48px; }
+  header { border-bottom:2px solid var(--ink); padding-bottom:16px; margin-bottom:24px; }
+  header h1 { font-size:1.4rem; font-weight:700; letter-spacing:.05em; }
+  header p { font-family:'Space Mono', monospace; font-size:.7rem; color:var(--muted); margin-top:4px; }
+  .countdown-row { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+  .countdown { flex:1 1 240px; border:1.5px solid var(--ink); padding:12px; background:#fff; }
+  .countdown .label { font-family:'Space Mono', monospace; font-size:.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+  .countdown .days { font-family:'Space Mono', monospace; font-size:2rem; font-weight:700; color:var(--accent); line-height:1; margin:4px 0 2px; }
+  .countdown .date { font-size:.7rem; color:var(--muted); }
+  .section { margin-bottom:28px; }
+  .section-header { display:flex; align-items:baseline; gap:10px; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .section-header h2 { font-size:.95rem; font-weight:700; letter-spacing:.05em; }
+  .section-header .tag { font-family:'Space Mono', monospace; font-size:.6rem; padding:2px 6px; border:1px solid var(--ink); color:var(--muted); }
+  .tag.broker { border-color:var(--accent); color:var(--accent); }
+  .tag.land { border-color:var(--gold); color:var(--gold); }
+  .tag.both { border-color:var(--done); color:var(--done); }
+  .phase { margin-bottom:16px; }
+  .phase-title { font-family:'Space Mono', monospace; font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .topic-item { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; margin-bottom:6px; border:1px solid var(--line); cursor:pointer; transition:all .15s ease; background:#fff; -webkit-tap-highlight-color:transparent; }
+  .topic-item:active { opacity:.7; }
+  .topic-item.done { background:#f0f5f2; border-color:var(--done); }
+  .topic-item.current { background:#fdf5f3; border-color:var(--accent); }
+  .status-dot { width:10px; height:10px; border-radius:50%; border:1.5px solid var(--todo); background:transparent; flex-shrink:0; margin-top:3px; transition:all .15s; }
+  .topic-item.done .status-dot { background:var(--done); border-color:var(--done); }
+  .topic-item.current .status-dot { background:var(--accent); border-color:var(--accent); }
+  .topic-info { flex:1; }
+  .topic-name { font-size:.85rem; font-weight:600; line-height:1.4; }
+  .topic-detail { font-size:.7rem; color:var(--muted); margin-top:2px; line-height:1.4; }
+  .topic-period { font-family:'Space Mono', monospace; font-size:.6rem; color:var(--muted); white-space:nowrap; margin-top:2px; }
+  .topic-item.done .topic-name { color:var(--done); text-decoration:line-through; text-decoration-color:var(--done); }
+  .topic-item.current .topic-name { color:var(--accent); }
+  .progress-bar-wrap { margin-bottom:24px; }
+  .progress-label { display:flex; justify-content:space-between; font-family:'Space Mono', monospace; font-size:.65rem; color:var(--muted); margin-bottom:6px; }
+  .progress-track { height:6px; background:var(--line); overflow:hidden; }
+  .progress-fill { height:100%; background:var(--accent); transition:width .4s ease; width:0%; }
+  .legend { display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:.65rem; color:var(--muted); font-family:'Space Mono', monospace; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; }
+  .note-box { border-left:3px solid var(--accent); padding:10px 12px; background:#fdf5f3; font-size:.75rem; line-height:1.7; margin-top:24px; color:var(--ink); }
+  .note-box strong { color:var(--accent); }
+</style>
+</head>
+<body>
+<header><h1>不動產雙證照｜讀書進度表</h1><p>點擊項目切換狀態：待讀 → 進行中 → 完成</p></header>
+<div class="countdown-row"><div class="countdown"><div class="label">經紀人考試</div><div class="days" id="days1">0</div><div class="date">2025年11月14日</div></div><div class="countdown"><div class="label">地政士考試</div><div class="days" id="days2">0</div><div class="date">2026年6月6日（預估）</div></div></div>
+<div class="progress-bar-wrap"><div class="progress-label"><span>整體進度</span><span id="progress-text">0 / 0 完成</span></div><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div></div>
+<div class="legend"><div class="legend-item"><div class="legend-dot" style="background:var(--done)"></div>已完成</div><div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>進行中</div><div class="legend-item"><div class="legend-dot" style="border:1.5px solid var(--todo);background:transparent"></div>待讀</div></div>
+<div class="section"><div class="section-header"><h2>民法概要</h2><span class="tag both">兩試共用</span></div><div class="phase"><div class="phase-title">已完成基礎</div><div class="topic-item done" onclick="toggle(this)" data-id="t1"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">民法總則｜意思表示、行為能力</div><div class="topic-detail">法律行為成立要件、意思表示瑕疵</div></div><div class="topic-period">已讀</div></div><div class="topic-item done" onclick="toggle(this)" data-id="t2"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">消滅時效、除斥期間</div><div class="topic-detail">民125～147</div></div><div class="topic-period">已讀</div></div><div class="topic-item done" onclick="toggle(this)" data-id="t3"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">代理、無權處分、債總各項</div><div class="topic-detail">無因管理172、不當得利179、侵權行為184／194、同時履行抗辯264</div></div><div class="topic-period">初步讀</div></div></div><div class="phase"><div class="phase-title">第一階段｜債各（現在 ～ 6/1）</div><div class="topic-item current" onclick="toggle(this)" data-id="t4"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">買賣契約 ⭐️</div><div class="topic-detail">民345～397｜物之瑕疵擔保、危險負擔必考</div></div><div class="topic-period">4/27～5/10</div></div><div class="topic-item" onclick="toggle(this)" data-id="t5"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">租賃契約 ⭐️</div><div class="topic-detail">民421～463｜修繕義務、優先承買權</div></div><div class="topic-period">5/11～5/17</div></div><div class="topic-item" onclick="toggle(this)" data-id="t6"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">委任＋居間 ⭐️</div><div class="topic-detail">民528～565｜居間報酬、報告義務常考</div></div><div class="topic-period">5/18～5/24</div></div><div class="topic-item" onclick="toggle(this)" data-id="t7"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">贈與、借貸、承攬、合夥</div><div class="topic-detail">快速掃重點條文即可</div></div><div class="topic-period">5/25～6/1</div></div></div></div>
+<div class="section"><div class="section-header"><h2>信託法</h2><span class="tag land">地政士專有</span></div><div class="topic-item" onclick="toggle(this)" data-id="t15"><div class="status-dot"></div><div class="topic-info"><div class="topic-name">信託法概要</div><div class="topic-detail">信託成立、受託人義務、不動產信託</div></div><div class="topic-period">11月後</div></div></div>
+<div class="note-box"><strong>📌 關鍵提醒</strong><br />今年11月經紀人考試當作實戰練習，沒過不要緊。<br />民法打紮實 = 兩張證照都省力。<br /><strong>每天底線：1小時，不談判。</strong></div>
+<script>
+const STORAGE_KEY='exam_tracker_v1'; const STATES=['','current','done'];
+function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{}}catch(e){return{}}}
+function saveState(state){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}}
+function toggle(el){const state=loadState(); const id=el.dataset.id; let idx=0; if(el.classList.contains('done')) idx=2; else if(el.classList.contains('current')) idx=1; const next=(idx+1)%3; el.classList.remove('done','current'); if(STATES[next]) el.classList.add(STATES[next]); state[id]=next; saveState(state); updateProgress();}
+function applyState(){const state=loadState(); document.querySelectorAll('.topic-item[data-id]').forEach(el=>{const id=el.dataset.id; if(state[id]!==undefined){el.classList.remove('done','current'); if(STATES[state[id]]) el.classList.add(STATES[state[id]]);}}); updateProgress();}
+function updateProgress(){const all=document.querySelectorAll('.topic-item[data-id]'); const done=document.querySelectorAll('.topic-item.done'); const pct=all.length?Math.round((done.length/all.length)*100):0; document.getElementById('progress-fill').style.width=pct+'%'; document.getElementById('progress-text').textContent=done.length+' / '+all.length+' 完成';}
+function updateCountdown(){const now=new Date(); const d1=new Date('2025-11-14T00:00:00'); const d2=new Date('2026-06-06T00:00:00'); const diff1=Math.ceil((d1-now)/86400000); const diff2=Math.ceil((d2-now)/86400000); document.getElementById('days1').textContent=Math.max(0,diff1); document.getElementById('days2').textContent=Math.max(0,diff2);}
+applyState(); updateCountdown();
+</script>
+</body>
+</html>
